@@ -153,3 +153,211 @@ cat log_report.html
 This report provides a summary of total requests, error rate, top 5 IP addresses, and top 5 requested resources. In a real-world scenario, you could open this HTML file in a web browser for a formatted view.
 
 The approach we've used in this script demonstrates how AWK can be used for more complex data analysis tasks. You can extend this script to include additional statistics or different visualizations based on your specific needs.''''
+*************************************************************************************************************
+
+>awk '{print NF,$0}' file
+
+>awk '/paul/{print NF,$0}' file
+
+>awk 'NR==6 {print $0}' file
+
+>awk 'NR>=3 && NR<=6 {print $0}' file || awk 'NR==3,NR==6 {print $0}' file
+
+>awk 'NF==0 {print NR}' file -> to get the blank line 
+
+>awk '/Raju|sham|Alex/{print $0}' file -> search multiple words
+
+>awk 'BEGIN{IGNORECASE=1} /raju|sham|alex/{print $0}' file -> Ignore case while search
+
+>awk '$2 ~ /a/ {print $0}' file
+
+>cat emp.csv
+
+>awk -F, '{print $2}' emp.csv
+
+>awk -F, '$NF>50000 {print $0}' emp.csv ->print data of employee whose salary > 50k
+
+>awk -F[,:-] '{print $2}' multi_del.txt -> how to deal with multiple delimeter
+
+>systemctl status httpd | awk 'NR==3 {print $0}' -> how to only get status of service {>systemctl status httpd}
+
+>systemctl status firewalld.service | awk  NR==3 {print $2}'
+
+>ls -lt | awk 'NR>1{print $NF}' or ls -l
+
+>sudo less /var/log/messages | awk '$3>="01:05:55" && $3<="01:05:56"'-> how to read logs in range of time
+
+>ls -ltr | awk '$6=="Oct"' 
+
+>awk '{gsub("Raju","Raja"): print$0}' sample.txt-> how to replace a word
+
+>awk '{print $2, length($2)}' sample.txt->length of a line/field
+
+>awk '{print length($0)}' sample.txt->length of a line/field
+
+>awk '/Paul/ {print NR,$0}' sample .txt-> Position of word in a given line
+
+>awk '/Paul/ {print NR, index($0,"Paul")}' sample .txt-> Position of word in a given line
+
+>awk '{print tolower($5)}' sample.txt->print value in upper and lower case
+
+>awk '{print toupper($5)}' sample.txt->print value in upper and lower case
+
+      _________________________________
+
+         AWK Scripting CONCEPTS
+      __________________________________
+
+awk 
+	'BEGIN{start_action}
+		patten/condition {action}
+	END{stop_action}'
+file_name
+
+>awk 'BEGIN{print "......Employees Data....."} {print $0} END{print "........THE END......."}' sample.txt
+
+______________________________
+
+Other programming Concepts
+	
+	Variables
+	if-Else
+	Array
+	For Loop
+	While loop
+	Functions
+________________________________
+
+>awk 'BEGIN{sum=0} {sum+=$NF} END{print sum}' sample.txt-> How to find total sum of salary
+
+>awk '{sum+=$NF} END{print sum}' sample.txt-> How to find total sum of salary
+
+>awk 'NR>1 {if($NF>0)count++; sum+=$NF} END{print "AVG SAL"sum/count}' sample.txt ->how to find average salary
+
+>awk 'NR>1 {if($NF>0)count++} END{print count}' sample.txt -> how to ignore header to count number of users
+
+>awk '{} END{print NR}' sample.txt-> how to print number of lines
+
+>awk '{print length($0)}' sample.txt-> how to get length of longest line
+
+>awk '{if(length($0)>max)max=length($0)} END{print max}' sample.txt-> how to get length of longest line
+
+>awk '{if($NF>50000)$7="High";else$7="Low"} END{print $0}' sample.txt -> print high for sal > 50000 else low
+
+>awk '{if($5==Loan) sum+=$NF} END{print sum}'sample.txt->print total salary paid on loan department
+
+______________________________________________________
+Using AWK Condition Pattern in a file
+	Add your conditions and pattern in a file let's say file.awk
+	>awk -f file.awk <file.txt>
+______________________________________________________
+
+>vi file.awk
+
+{
+if($NF>50000)
+	$7="High"
+else
+	$7="Low"
+print $0
+} 
+
+>awk -f file.awk sample.txt -> print high for sal > 50000 else low
+
+BEGIN{
+	print "Start of file"
+}
+{
+if($NF>50000)
+	$7="High"
+else
+	$7="Low"
+print $0
+}
+END{
+	print "END of file"
+}
+
+
+______________________________________________________
+Using AWK as a script
+	#!/bin/awk -f
+	BEING{}
+		pattern/condition{action}
+	END{}
+______________________________________________________
+
+
+______________________________________________________________________________________________________________________________________________________
+
+practices 
+
+sample.txt
+___________________________________________________________
+id,firstname,lastname,Salary
+100,Malina,Garlinda,20000
+101,Emylee,Holtz,20001
+102,Annaliese,Melan,20002
+103,Debee,Mintz,20003
+104,Marjie,Hylan,20004
+105,Brynna,Winthorpe,20005
+106,Miquela,Milson,20006
+107,Dawn,Ries,20007
+108,Evaleen,Hourigan,20008
+109,Rosabelle,McGrody,20009
+110,Clementine,Albertine,20010
+111,Verla,Elo,20011
+112,Clementine,Stuart,20012
+113,Heida,Cohdwell,20013
+114,Ginnie,Hertzfeld,20014
+115,Eolanda,Gunn,20015
+116,Nollie,Ardeha,20016
+117,Edee,Wareing,20017
+118,Tani,Dearborn,20018
+119,Susan,Charmine,20019
+____________________________________________________________
+
+#awk 'BEGIN{FS=","; sum=0;count=0} NR>1{sum+=$4;count++} END{print sum/count}' sample.txt
+
+#awk -F',' '$3 ~/e/{print $0}' sample.txt
+
+#awk -F',' '{print $2,$NF}' sample.txt
+
+#awk -F',' 'NR>1{print $0}' sample.txt
+
+#awk -F',' '{if($4>20010){print $0}}' sample.txt
+
+#awk -F',' 'NR>1 && ($4+0) > 20011' sample.txt
+
+# awk -F',' 'NR>1 {
+#     sum[$2] += $4+0 
+#     count[$2]++
+# }
+# END{
+#     for(name in sum)
+#     print name, sum[name]/count[name]
+# }
+
+# ' sample.txt
+
+#awk -F',' 'NR>1 {print $0}' sample.txt | sort -t',' -k4,4nr | head -3
+
+# awk -F',' '($4+0)>0{sum+=$4;count++} END{print sum/count}' sample.txt
+
+#awk -F',' '{print $2 " earns " $4}' sample.txt
+
+# awk -F',' '
+# {count[$2]++}
+# END{
+#     for(naam in count)
+#         if(count[naam]>1)
+#             print naam, count[naam]
+    
+# }' sample.txt
+
+#awk -F',' 'NR>1{print $2,$4}' sample.txt | sort -k2 -r | head -1
+
+#awk -F',' 'NR>1 && $4+0 > 20015 {print $2,$4}' sample.txt
+
+
+
