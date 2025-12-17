@@ -1,0 +1,155 @@
+*********************************************************************
+Practical
+
+> head -n 5 server_logs.txt 
+
+> awk '{print $3}' server_logs.txt | head -n 5
+	here '-n' means numeric 
+
+> awk '$4 == "POST" {print $0}' server_logs.txt
+
+> awk '$6 == "404" {print $1, $2, $5}' server_logs.txt
+
+> awk '$4 == "POST" && $6 >= 400 {print $0}' server_logs.txt
+
+> awk '{count[$6]++} END {for (code in count) print code, count[code]}' server_logs.txt | sort -n
+
+> awk '{count[$5]++} END {for (resource in count) print count[resource], resource}' server_logs.txt | sort -rn | head -n 5
+
+> awk '{count[$3]++} END {for (ip in count) print ip, count[ip]}' server_logs.txt
+
+> awk '{key=$4"-"$6; count[key]++} END {for (k in count) print k, count[k]}' server_logs.txt
+
+> cat << 'EOF' > log_report.awk
+BEGIN {
+    print "<html><body>"
+    print "<h1>Server Log Summary</h1>"
+    total = 0
+    errors = 0
+}
+
+{
+    total++
+    if ($6 >= 400) errors++
+    ip_count[$3]++
+    resource_count[$5]++
+}
+
+END {
+    print "<p>Total requests: " total "</p>"
+    print "<p>Error rate: " (errors/total) * 100 "%</p>"
+    
+    print "<h2>Top 5 IP Addresses</h2>"
+    print "<ul>"
+    for (ip in ip_count) {
+        top_ips[ip] = ip_count[ip]
+    }
+    n = asort(top_ips, sorted_ips, "@val_num_desc")
+    for (i = 1; i <= 5 && i <= n; i++) {
+        for (ip in ip_count) {
+            if (ip_count[ip] == sorted_ips[i]) {
+                print "<li>" ip ": " ip_count[ip] " requests</li>"
+                break
+            }
+        }
+    }
+    print "</ul>"
+    
+    print "<h2>Top 5 Requested Resources</h2>"
+    print "<ul>"
+    for (resource in resource_count) {
+        top_resources[resource] = resource_count[resource]
+    }
+    n = asort(top_resources, sorted_resources, "@val_num_desc")
+    for (i = 1; i <= 5 && i <= n; i++) {
+        for (resource in resource_count) {
+            if (resource_count[resource] == sorted_resources[i]) {
+                print "<li>" resource ": " resource_count[resource] " requests</li>"
+                break
+            }
+        }
+    }
+    print "</ul>"
+    
+    print "</body></html>"
+}
+EOF
+
+''' Let's understand this AWK script section by section:
+
+BEGIN Block: Executes before processing any input lines
+
+BEGIN {
+    print "<html><body>"  # Start HTML structure
+    print "<h1>Server Log Summary</h1>"
+    total = 0  # Initialize counter for total requests
+    errors = 0  # Initialize counter for error requests
+}
+ Explain Code
+Main Processing Block: Executes for each line of the input file
+
+{
+    total++  # Increment total request counter
+    if ($6 >= 400) errors++  # Count error responses (status codes >= 400)
+    ip_count[$3]++  # Count requests by IP address (field 3)
+    resource_count[$5]++  # Count requests by resource (field 5)
+}
+ Explain Code
+END Block: Executes after processing all input lines
+
+END {
+    # Print summary statistics
+    print "<p>Total requests: " total "</p>"
+    print "<p>Error rate: " (errors/total) * 100 "%</p>"
+
+    # Process and print top 5 IP addresses
+    # ...
+
+    # Process and print top 5 requested resources
+    # ...
+
+    print "</body></html>"  # End HTML structure
+}
+ Explain Code
+Let's examine the sorting logic for the top IPs (the resources section works the same way):
+
+# Copy the counts to a new array for sorting
+for (ip in ip_count) {
+    top_ips[ip] = ip_count[ip]
+}
+
+# Sort the array by value in descending order
+n = asort(top_ips, sorted_ips, "@val_num_desc")
+
+# Print the top 5 entries
+for (i = 1; i <= 5 && i <= n; i++) {
+    # Find the original IP that matches this count
+    for (ip in ip_count) {
+        if (ip_count[ip] == sorted_ips[i]) {
+            print "<li>" ip ": " ip_count[ip] " requests</li>"
+            break
+        }
+    }
+}
+ Explain Code
+In this script:
+
+The asort() function sorts the array
+"@val_num_desc" is a special argument that tells it to sort numerically by value in descending order
+The nested loops find and print the top 5 entries
+Now, let's run our AWK script to generate the report:
+
+awk -f log_report.awk server_logs.txt > log_report.html
+ Explain Code
+The -f option tells AWK to read the script from the specified file:
+
+-f log_report.awk - Reads the AWK script from the file log_report.awk
+server_logs.txt - Processes this file using the script
+> log_report.html - Redirects the output to the file log_report.html
+You can view the contents of the report using the cat command:
+
+cat log_report.html
+ Explain Code
+This report provides a summary of total requests, error rate, top 5 IP addresses, and top 5 requested resources. In a real-world scenario, you could open this HTML file in a web browser for a formatted view.
+
+The approach we've used in this script demonstrates how AWK can be used for more complex data analysis tasks. You can extend this script to include additional statistics or different visualizations based on your specific needs.''''
